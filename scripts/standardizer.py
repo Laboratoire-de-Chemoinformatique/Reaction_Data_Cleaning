@@ -58,13 +58,9 @@ class Standardizer:
                 os.environ['JAVA_HOME'] = jvm_path
                 os.environ['PATH'] += f';{PurePosixPath(jvm_path).joinpath("bin").joinpath("server")};' \
                                       f'{PurePosixPath(jvm_path).joinpath("bin").joinpath("server")};'
-            else:
-                raise ValueError("Cannot perform the tautomerization if no JVM is given!")
             if jchem_path:
                 import jnius_config
                 jnius_config.add_classpath(jchem_path)
-            else:
-                raise ValueError("Cannot perform the tautomerization if no JChem is given!")
             from jnius import autoclass
             Standardizer = autoclass('chemaxon.standardizer.Standardizer')
             self._Molecule = autoclass('chemaxon.struc.Molecule')
@@ -181,15 +177,6 @@ class Standardizer:
         :return: ReactionContainer
         """
         self.logger.info('Reaction {0}..'.format(reaction.meta[self._id_tag]))
-        # try:
-        #     if self._dearomatize_by_rdkit:
-        #         reaction = self._dearomatize_by_RDKit(reaction)
-        # except:
-        #     self.logger.exception('Reaction {0}: Cannot dearomatize by RDKit..'.format(reaction.meta[self._id_tag]))
-        #     if not self._skip_errors:
-        #         raise Exception('Reaction {0}: Cannot dearomatize by RDKit..'.format(reaction.meta[self._id_tag]))
-        #     else:
-        #         return
         try:
             reaction.standardize()
         except:
@@ -303,12 +290,14 @@ class Standardizer:
                     self.logger.info('Reaction {0}: Products are empty..'.format(reaction.meta[self._id_tag]))
                     return
         except:
-            self.logger.exception('Reaction {0}: Cannot remove unchanged parts..'.format(reaction.meta[self._id_tag]))
+            self.logger.exception('Reaction {0}: Cannot remove unchanged parts or the reaction is empty..'.format(
+                reaction.meta[self._id_tag]))
             if not self._skip_errors:
-                raise Exception('Reaction {0}: Cannot remove unchanged parts..'.format(reaction.meta[self._id_tag]))
+                raise Exception('Reaction {0}: Cannot remove unchanged parts or the reaction is empty..'.format(
+                    reaction.meta[self._id_tag]))
             else:
                 return
-        self.logger.debug('Reaction {0} done..'.format(reaction.meta[self._id_tag]))
+        self.logger.debug('Reaction {0} is done..'.format(reaction.meta[self._id_tag]))
         return reaction
 
     def write(self, output_file: str, data: OrderedSet) -> None:
@@ -605,7 +594,8 @@ if __name__ == '__main__':
     parser.add_argument("--skip_tautomerize", action="store_true", help="Will skip generation of the major tautomer.")
     parser.add_argument("--rdkit_dearomatization", action="store_true", help="Will kekulize the reaction using RDKit "
                                                                              "facilities.")
-    parser.add_argument("--jvm_path", type=str, help="JVM path (e.g. C:\\Program Files\\Java\\jdk-13.0.2).")
+    parser.add_argument("--jvm_path", type=str,
+                        help="JVM path (e.g. C:\\Program Files\\Java\\jdk-13.0.2).")
     parser.add_argument("--jchem_path", type=str, help="JChem path (e.g. C:\\Users\\user\\JChemSuite\\lib\\jchem.jar).")
     args = parser.parse_args()
 
