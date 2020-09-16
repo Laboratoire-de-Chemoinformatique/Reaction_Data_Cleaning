@@ -10,6 +10,15 @@ This repository contains chemical reactions data curation best practices.
 ### Corresponding Authors:
     Alexandre Varnek (varnek@unistra.fr)
     Timur Madzhidov (tmadzhidov@gmail.com)
+    
+### Contributors:
+    Arkadii Lin (arkadiyl18@gmail.com)
+    Ramil Nugmanov (nougmanoff@hotmail.com)
+    Natalia Duybankova (NDyubank@its.jnj.com)
+    Jonas Verhoeven (jverhoe9@its.jnj.com)
+    Timur Madzhidov (tmadzhidov@gmail.com)
+    Alexandre Varnek (varnek@unistra.fr)
+    Joerg Wegner (jwegner@its.jnj.com)
    
 ### Copyright:
     Copyright 2020, MaDeSmart, Machine Design of Small Molecules by AI VLAIO project HBC.2018.2287
