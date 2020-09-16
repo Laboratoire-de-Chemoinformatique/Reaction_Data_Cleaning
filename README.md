@@ -22,10 +22,10 @@ This repository contains chemical reactions data curation best practices.
     Janssen Pharmaceutica N.V., Beerse, Belgium
     Rail Suleymanov, Arcadia, St. Petersburg, Russia
 
-# dependencies
+### Dependencies
   - python: 3.7
   - CGRtools: 4.0.36
-	- ordered-set: 4.0.2
+  - ordered-set: 4.0.2
   - pyjnius: 1.3.0
-	- JChemSuite package from ChemAxon: 19.9.0
+  - JChemSuite package from ChemAxon: 19.9.0
   
