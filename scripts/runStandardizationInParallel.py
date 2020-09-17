@@ -10,7 +10,7 @@
 # Copyright: Copyright 2020,
 #            MaDeSmart, Machine Design of Small Molecules by AI
 #            VLAIO project HBC.2018.2287
-# Credits: University of Kazan, Russia
+# Credits: Kazan Federal University, Russia
 #          University of Strasbourg, France
 #          University of Linz, Austria
 #          University of Leuven, Belgium
