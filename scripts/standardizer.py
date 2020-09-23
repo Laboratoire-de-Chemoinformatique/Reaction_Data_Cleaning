@@ -461,9 +461,9 @@ class Standardizer:
         :return: ReactionContainer
         """
         meta = reaction.meta
-        reactants = [m for m in reaction.reactants]
-        products = [m for m in reaction.products]
-        new_reactants, new_reagents, new_products = reactants, [m for m in reaction.reagents], products
+        reactants = reaction.reactants.copy()
+        products = reaction.products.copy()
+        new_reactants, new_reagents, new_products = reactants.copy(), reaction.reagents.copy(), products.copy()
         for reactant in reactants:
             if reactant in new_products:
                 # if self._ignore_mapping:
