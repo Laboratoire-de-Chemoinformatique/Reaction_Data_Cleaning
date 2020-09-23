@@ -466,16 +466,16 @@ class Standardizer:
         new_reactants, new_reagents, new_products = reactants, [m for m in reaction.reagents], products
         for reactant in reactants:
             if reactant in new_products:
-                if self._ignore_mapping:
-                    new_reagents.append(reactant)
-                    new_reactants.remove(reactant)
-                    new_products.remove(reactant)
-                elif self._confirm_equivalence_by_mapping(reactant, new_products):
-                    new_reagents.append(reactant)
-                    new_reactants = [m for m in new_reactants if
-                                     not self._confirm_equivalence_by_mapping(reactant, tuple([m]))]
-                    new_products = [m for m in new_products if
-                                    not self._confirm_equivalence_by_mapping(reactant, tuple([m]))]
+                # if self._ignore_mapping:
+                new_reagents.append(reactant)
+                new_reactants.remove(reactant)
+                new_products.remove(reactant)
+                # elif self._confirm_equivalence_by_mapping(reactant, new_products):
+                #     new_reagents.append(reactant)
+                #     new_reactants = [m for m in new_reactants if
+                #                      not self._confirm_equivalence_by_mapping(reactant, tuple([m]))]
+                #     new_products = [m for m in new_products if
+                #                     not self._confirm_equivalence_by_mapping(reactant, tuple([m]))]
         if not self._keep_reagents:
             new_reagents = []
         return ReactionContainer(reactants=tuple(new_reactants), reagents=tuple(new_reagents),
@@ -577,7 +577,7 @@ if __name__ == '__main__':
                                      epilog="Arkadii Lin, Strasbourg/Kazan 2020", prog="Standardizer")
     parser.add_argument("-i", "--input", type=str, help="Input RDF file.")
     parser.add_argument("-o", "--output", type=str, help="Output RDF file.")
-    parser.add_argument("-id", "--idTag", type=str, help="ID tag in the RDF file.")
+    parser.add_argument("-id", "--idTag", default='Reaction_ID', type=str, help="ID tag in the RDF file.")
     parser.add_argument("--skipErrors", action="store_true", help="Skip errors.")
     parser.add_argument("--keep_unbalanced_ions", action="store_true", help="Will keep reactions with unbalanced ions.")
     parser.add_argument("--action_on_isotopes", type=int, default=0, help="Action performed if an isotope is "
