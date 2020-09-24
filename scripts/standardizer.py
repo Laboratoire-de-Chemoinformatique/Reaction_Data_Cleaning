@@ -316,9 +316,13 @@ class Standardizer:
         """
         mistakes = []
         for molecule in (reaction.reactants + reaction.products + reaction.reagents):
-            mistakes.extend(molecule.check_valence())
+            valence_mistakes = molecule.check_valence()
+            if valence_mistakes:
+                mistakes.append(("|".join([str(num) for num in valence_mistakes]),
+                                          "|".join([str(molecule.atom(n)) for n in valence_mistakes]), str(molecule)))
         if mistakes:
-            reaction.meta['mistake'] = f'Valence mistake in {set(mistakes)}'
+            message = ",".join([f'{atom_nums} at {atoms} in {smiles}' for atom_nums, atoms, smiles in mistakes])
+            reaction.meta['mistake'] = f'Valence mistake: {message}'
             return True
         return False
 
@@ -461,9 +465,10 @@ class Standardizer:
         :return: ReactionContainer
         """
         meta = reaction.meta
-        reactants = reaction.reactants.copy()
-        products = reaction.products.copy()
-        new_reactants, new_reagents, new_products = reactants.copy(), reaction.reagents.copy(), products.copy()
+        reactants = [m for m in reaction.reactants]
+        products = [m for m in reaction.products]
+        new_reactants, new_reagents, new_products = [m for m in reaction.reactants], [m for m in reaction.reagents], \
+                                                    [m for m in reaction.products]
         for reactant in reactants:
             if reactant in new_products:
                 # if self._ignore_mapping:
