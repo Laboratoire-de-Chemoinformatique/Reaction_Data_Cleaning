@@ -35,7 +35,7 @@ class Standardizer:
     def __init__(self, skip_errors=False, log_file=None, keep_unbalanced_ions=False, id_tag='Reaction_ID',
                  action_on_isotopes=0, keep_reagents=False, logger=None, ignore_mapping=False, jvm_path=None,
                  rdkit_dearomatization=False, remove_unchanged_parts=True, skip_tautomerize=False,
-                 jchem_path=None) -> None:
+                 jchem_path=None, add_reagents_to_reactants=False) -> None:
         if logger is None:
             self.logger = self._config_log(log_file, logger_name='logger')
         else:
@@ -49,6 +49,7 @@ class Standardizer:
         self._remove_unchanged_parts_flag = remove_unchanged_parts
         self._skip_tautomerize = skip_tautomerize
         self._dearomatize_by_rdkit = rdkit_dearomatization
+        self._reagents_to_reactants = add_reagents_to_reactants
         if not skip_tautomerize:
             if jvm_path:
                 os.environ['JDK_HOME'] = jvm_path
@@ -466,8 +467,13 @@ class Standardizer:
         """
         meta = reaction.meta
         reactants = [m for m in reaction.reactants]
-        new_reactants, new_reagents, new_products = [m for m in reaction.reactants], [m for m in reaction.reagents], \
-                                                    [m for m in reaction.products]
+        if self._reagents_to_reactants:
+            new_reactants = [m for m in reaction.reactants] + [m for m in reaction.reagents]
+            new_reagents = []
+        else:
+            new_reactants, new_reagents = [m for m in reaction.reactants], [m for m in reaction.reagents]
+        new_products = [m for m in reaction.products]
+
         for reactant in reactants:
             if reactant in new_products:
                 # if self._ignore_mapping:
@@ -589,6 +595,7 @@ if __name__ == '__main__':
                                                                           "1 - to remove reactions with isotopes; "
                                                                           "2 - to clear isotopes' labels.")
     parser.add_argument("--keep_reagents", action="store_true", help="Will keep reagents from the reaction.")
+    parser.add_argument("--add_reagents", action="store_true", help="Will add the given reagents to reactants.")
     parser.add_argument("--ignore_mapping", action="store_true", help="Will ignore the initial mapping in the file.")
     parser.add_argument("--keep_unchanged_parts", action="store_true", help="Will keep unchanged parts in a reaction.")
     parser.add_argument("--logFile", type=str, default='logFile.txt', help="Log file name.")
@@ -605,6 +612,7 @@ if __name__ == '__main__':
                                 action_on_isotopes=args.action_on_isotopes, keep_reagents=args.keep_reagents,
                                 ignore_mapping=args.ignore_mapping, skip_tautomerize=args.skip_tautomerize,
                                 remove_unchanged_parts=(not args.keep_unchanged_parts), jvm_path=args.jvm_path,
-                                jchem_path=args.jchem_path, rdkit_dearomatization=args.rdkit_dearomatization)
+                                jchem_path=args.jchem_path, rdkit_dearomatization=args.rdkit_dearomatization,
+                                add_reagents_to_reactants=args.add_reagents)
     data = standardizer.standardize_file(input_file=args.input)
     standardizer.write(output_file=args.output, data=data)
