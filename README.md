@@ -33,7 +33,8 @@ This repository contains chemical reactions data curation best practices.
 
 # Reference
 Please, cite the paper when you use the data or the scripts:
-  Lin, Arkadii; Dyubankova, Natalia; Madzhidov, Timur; Nugmanov, Ramil; Rakhimbekova, Assima; Ibragimova, Zarina; Akhmetshin, Tagir; Gimadiev, Timur; Suleymanov, Rail; Verhoeven, Jonas; Wegner, Jörg Kurt; Ceulemans, Hugo; Varnek, Alexandre. (2020): Atom-to-Atom Mapping: A Benchmarking Study of Popular Mapping Algorithms and Consensus Strategies. ChemRxiv. Preprint. https://doi.org/10.26434/chemrxiv.13012679.v1 
+    
+  Lin, Arkadii; Dyubankova, Natalia; Madzhidov, Timur; Nugmanov, Ramil; Rakhimbekova, Assima; Ibragimova, Zarina; Akhmetshin, Tagir; Gimadiev, Timur; Suleymanov, Rail; Verhoeven, Jonas; Wegner, Jörg Kurt; Ceulemans, Hugo; Varnek, Alexandre (2020): Atom-to-Atom Mapping: A Benchmarking Study of Popular Mapping Algorithms and Consensus Strategies. ChemRxiv. Preprint. https://doi.org/10.26434/chemrxiv.13012679.v1 
 
 ### Dependencies
   - python: 3.7
