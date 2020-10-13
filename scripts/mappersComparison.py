@@ -125,7 +125,7 @@ def main(reference_file: str, generated_file: str, log_file: str, id_tag: str, a
     gen_mapping = parse_reactions(input_file=generated_file, id_tag=id_tag)
     print(f'{len(gen_mapping)} reactions were found..')
 
-    print("Filtering Jaworski's data..")
+    print("Filtering data..")
     ref_mapping, gen_mapping = filter_data(referenced_aam=ref_mapping, generated_aam=gen_mapping)
     print(f'{len(ref_mapping)} reactions stayed..')
 
