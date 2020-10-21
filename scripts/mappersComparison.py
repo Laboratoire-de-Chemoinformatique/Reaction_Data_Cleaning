@@ -42,6 +42,8 @@ def parse_reactions(input_file: str, id_tag: str) -> Dict:
                 try:
                     r = next(f)
                     key = r.meta[id_tag]
+                    r.thiele()
+                    r.standardize()
                     data[key] = r
                     logging.info(f'Reaction {key} passed..')
                 except StopIteration:
@@ -63,7 +65,8 @@ def parse_reactions(input_file: str, id_tag: str) -> Dict:
                     r_id = line[id_tag_position]
                     logging.critical(f'Reaction {r_id}: Parser has returned an error message\n{reaction.log}')
                     continue
-
+                reaction.thiele()
+                reaction.standardize()
                 key = reaction.meta[id_tag]
                 data[key] = reaction
                 logging.info(f'Reaction {key} passed..')
@@ -143,6 +146,7 @@ def main(reference_file: str, generated_file: str, log_file: str, id_tag: str, a
         if ref_mapping[key] != gen_mapping[key]:
             statistics['not_equal_reactions'] += 1
             reactions['not_equal_reactions'].append(key)
+            # print(str(ref_mapping[key]), str(gen_mapping[key]))
         elif ref_cgr[key] != gen_cgr[key]:
             chemical_distance = abs(len(ref_cgr[key].center_atoms) + len(ref_cgr[key].center_bonds)
                                     - len(gen_cgr[key].center_atoms) - len(gen_cgr[key].center_bonds))
