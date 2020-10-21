@@ -27,10 +27,11 @@ import logging
 import pickle
 
 
-def parse_reactions(input_file: str, id_tag: str) -> Dict:
+def parse_reactions(input_file: str, id_tag: str, do_basic_standardization: bool = True) -> Dict:
     """
     Reads an RDF/SMILES file. Returns a dictionary where the key is the reaction ID, and the value is the
     ReactionContainer.
+    :param do_basic_standardization: bool
     :param input_file: str
     :param id_tag: str
     :return: Dict
@@ -42,8 +43,9 @@ def parse_reactions(input_file: str, id_tag: str) -> Dict:
                 try:
                     r = next(f)
                     key = r.meta[id_tag]
-                    r.thiele()
-                    r.standardize()
+                    if do_basic_standardization:
+                        r.thiele()
+                        r.standardize()
                     data[key] = r
                     logging.info(f'Reaction {key} passed..')
                 except StopIteration:
@@ -65,8 +67,9 @@ def parse_reactions(input_file: str, id_tag: str) -> Dict:
                     r_id = line[id_tag_position]
                     logging.critical(f'Reaction {r_id}: Parser has returned an error message\n{reaction.log}')
                     continue
-                reaction.thiele()
-                reaction.standardize()
+                if do_basic_standardization:
+                    reaction.thiele()
+                    reaction.standardize()
                 key = reaction.meta[id_tag]
                 data[key] = reaction
                 logging.info(f'Reaction {key} passed..')
@@ -107,9 +110,11 @@ def __config_log(log_file):
                         datefmt='%d/%m/%Y %H:%M:%S')
 
 
-def main(reference_file: str, generated_file: str, log_file: str, id_tag: str, archive_file: str):
+def main(reference_file: str, generated_file: str, log_file: str, id_tag: str, archive_file: str,
+         ignore_basic_stand: bool):
     """
     Computes statistics on the comparison of the referenced and generated mappings.
+    :param ignore_basic_stand: bool
     :param reference_file: str
     :param generated_file: str
     :param log_file: str
@@ -120,12 +125,14 @@ def main(reference_file: str, generated_file: str, log_file: str, id_tag: str, a
 
     print('Loading the reference dataset..')
     logging.info('Loading the reference dataset..')
-    ref_mapping = parse_reactions(input_file=reference_file, id_tag=id_tag)
+    ref_mapping = parse_reactions(input_file=reference_file, id_tag=id_tag,
+                                  do_basic_standardization=(not ignore_basic_stand))
     print(f'{len(ref_mapping)} reactions were found..')
 
     print("Loading the generated dataset..")
     logging.info("Loading the generated dataset..")
-    gen_mapping = parse_reactions(input_file=generated_file, id_tag=id_tag)
+    gen_mapping = parse_reactions(input_file=generated_file, id_tag=id_tag,
+                                  do_basic_standardization=(not ignore_basic_stand))
     print(f'{len(gen_mapping)} reactions were found..')
 
     print("Filtering data..")
@@ -182,6 +189,7 @@ if __name__ == '__main__':
                         help="Input RDF/SMILES file containing the generated AAM.")
     parser.add_argument("-id", "--id_tag", type=str, required=True,
                         help="The property field that stores the reaction ID.")
+    parser.add_argument("--ignore_basic_stand", action="store_true", help="Will ignore basic standardization.")
     parser.add_argument("--ids_archive", type=str, help="A pickle archive containing a dictionary of four lists: "
                                                         "good_mapping - reactions' IDs that were mapped in the same "
                                                         "way; bad_mapping_diff_CD - reactions that were mapped "
@@ -194,4 +202,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(reference_file=args.reference_data, generated_file=args.mapped_data, log_file=args.logFile,
-         id_tag=args.id_tag, archive_file=args.ids_archive)
+         id_tag=args.id_tag, archive_file=args.ids_archive, ignore_basic_stand=args.ignore_basic_stand)
