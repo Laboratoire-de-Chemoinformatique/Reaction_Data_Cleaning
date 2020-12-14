@@ -478,12 +478,12 @@ class Standardizer:
         :return: ReactionContainer
         """
         meta = reaction.meta
-        reactants = [m for m in reaction.reactants]
+        new_reactants = [m for m in reaction.reactants]
+        new_reagents = [m for m in reaction.reagents]
         if self._reagents_to_reactants:
-            new_reactants = [m for m in reaction.reactants] + [m for m in reaction.reagents]
+            new_reactants.extend(new_reagents)
             new_reagents = []
-        else:
-            new_reactants, new_reagents = [m for m in reaction.reactants], [m for m in reaction.reagents]
+        reactants = new_reactants.copy()
         new_products = [m for m in reaction.products]
 
         for reactant in reactants:
