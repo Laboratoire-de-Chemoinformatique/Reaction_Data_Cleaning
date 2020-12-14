@@ -153,7 +153,6 @@ def main(reference_file: str, generated_file: str, log_file: str, id_tag: str, a
         if ref_mapping[key] != gen_mapping[key]:
             statistics['not_equal_reactions'] += 1
             reactions['not_equal_reactions'].append(key)
-            # print(str(ref_mapping[key]), str(gen_mapping[key]))
         elif ref_cgr[key] != gen_cgr[key]:
             chemical_distance = abs(len(ref_cgr[key].center_atoms) + len(ref_cgr[key].center_bonds)
                                     - len(gen_cgr[key].center_atoms) - len(gen_cgr[key].center_bonds))

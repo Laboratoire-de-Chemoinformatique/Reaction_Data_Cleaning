@@ -175,6 +175,7 @@ class Standardizer:
         :return: ReactionContainer
         """
         self.logger.info('Reaction {0}..'.format(reaction.meta[self._id_tag]))
+        print(1, str(reaction))
         try:
             reaction.standardize()
         except:
@@ -185,6 +186,7 @@ class Standardizer:
                     'Reaction {0}: Cannot standardize functional groups..'.format(reaction.meta[self._id_tag]))
             else:
                 return
+        print(2, str(reaction))
         try:
             reaction.kekule()
         except:
@@ -193,6 +195,7 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot kekulize..'.format(reaction.meta[self._id_tag]))
             else:
                 return
+        print(3, str(reaction))
         try:
             if self._check_valence(reaction):
                 self.logger.info(
@@ -205,6 +208,7 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot check valence..'.format(reaction.meta[self._id_tag]))
             else:
                 return
+        print(4, str(reaction))
         try:
             if not self._skip_tautomerize:
                 reaction = self._tautomerize(reaction)
@@ -214,6 +218,7 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot tautomerize..'.format(reaction.meta[self._id_tag]))
             else:
                 return
+        print(5, str(reaction))
         try:
             reaction.implicify_hydrogens()
         except:
@@ -223,6 +228,7 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot remove explicit hydrogens..'.format(reaction.meta[self._id_tag]))
             else:
                 return
+        print(6, str(reaction))
         try:
             if self._check_radicals(reaction):
                 self.logger.info('Reaction {0}: Radicals were found..'.format(reaction.meta[self._id_tag]))
@@ -233,6 +239,7 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot check radicals..'.format(reaction.meta[self._id_tag]))
             else:
                 return
+        print(7, str(reaction))
         try:
             if self._action_on_isotopes == 1 and self._check_isotopes(reaction):
                 self.logger.info('Reaction {0}: Isotopes were found..'.format(reaction.meta[self._id_tag]))
@@ -247,6 +254,7 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot check for isotopes..'.format(reaction.meta[self._id_tag]))
             else:
                 return
+        print(8, str(reaction))
         try:
             reaction, return_code = self._split_ions(reaction)
             if return_code == 1:
@@ -262,6 +270,7 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot group ions..'.format(reaction.meta[self._id_tag]))
             else:
                 return
+        print(9, str(reaction))
         try:
             reaction.thiele()
         except:
@@ -270,6 +279,7 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot aromatize..'.format(reaction.meta[self._id_tag]))
             else:
                 return
+        print(10, str(reaction))
         try:
             reaction.fix_mapping()
         except:
@@ -278,6 +288,7 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot fix mapping..'.format(reaction.meta[self._id_tag]))
             else:
                 return
+        print(11, str(reaction))
         try:
             if self._remove_unchanged_parts_flag:
                 reaction = self._remove_unchanged_parts(reaction)
@@ -295,6 +306,7 @@ class Standardizer:
                     reaction.meta[self._id_tag]))
             else:
                 return
+        print(12, str(reaction))
         self.logger.debug('Reaction {0} is done..'.format(reaction.meta[self._id_tag]))
         return reaction
 
