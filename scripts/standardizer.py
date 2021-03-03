@@ -4,8 +4,8 @@
 #############################################################################
 # GNU LGPL https://www.gnu.org/licenses/lgpl-3.0.en.html
 #############################################################################
-# Corresponding Author: Timur Madzhidov and Alexandre Varnek
-# Corresponding Author email: tmadzhidov@gmail.com and varnek@unistra.fr
+# Corresponding Authors: Timur Madzhidov and Alexandre Varnek
+# Corresponding Authors' emails: tmadzhidov@gmail.com and varnek@unistra.fr
 # Main contributors: Arkadii Lin, Natalia Duybankova, Ramil Nugmanov, Rail Suleymanov and Timur Madzhidov
 # Copyright: Copyright 2020,
 #            MaDeSmart, Machine Design of Small Molecules by AI
@@ -17,14 +17,13 @@
 #          Janssen Pharmaceutica N.V., Beerse, Belgium
 #          Rail Suleymanov, Arcadia, St. Petersburg, Russia
 # License: GNU LGPL https://www.gnu.org/licenses/lgpl-3.0.en.html
-# Version: 00.01
+# Version: 00.02
 #############################################################################
 
 from CGRtools.files import RDFRead, RDFWrite, SDFWrite, SDFRead, SMILESRead
 from CGRtools.containers import MoleculeContainer, ReactionContainer
 import logging
 from ordered_set import OrderedSet
-from typing import Tuple
 import os
 import io
 import pathlib
@@ -175,7 +174,6 @@ class Standardizer:
         :return: ReactionContainer
         """
         self.logger.info('Reaction {0}..'.format(reaction.meta[self._id_tag]))
-        print(1, str(reaction))
         try:
             reaction.standardize()
         except:
@@ -186,7 +184,6 @@ class Standardizer:
                     'Reaction {0}: Cannot standardize functional groups..'.format(reaction.meta[self._id_tag]))
             else:
                 return
-        print(2, str(reaction))
         try:
             reaction.kekule()
         except:
@@ -195,7 +192,6 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot kekulize..'.format(reaction.meta[self._id_tag]))
             else:
                 return
-        print(3, str(reaction))
         try:
             if self._check_valence(reaction):
                 self.logger.info(
@@ -208,7 +204,6 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot check valence..'.format(reaction.meta[self._id_tag]))
             else:
                 return
-        print(4, str(reaction))
         try:
             if not self._skip_tautomerize:
                 reaction = self._tautomerize(reaction)
@@ -218,7 +213,6 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot tautomerize..'.format(reaction.meta[self._id_tag]))
             else:
                 return
-        print(5, str(reaction))
         try:
             reaction.implicify_hydrogens()
         except:
@@ -228,7 +222,6 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot remove explicit hydrogens..'.format(reaction.meta[self._id_tag]))
             else:
                 return
-        print(6, str(reaction))
         try:
             if self._check_radicals(reaction):
                 self.logger.info('Reaction {0}: Radicals were found..'.format(reaction.meta[self._id_tag]))
@@ -239,7 +232,6 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot check radicals..'.format(reaction.meta[self._id_tag]))
             else:
                 return
-        print(7, str(reaction))
         try:
             if self._action_on_isotopes == 1 and self._check_isotopes(reaction):
                 self.logger.info('Reaction {0}: Isotopes were found..'.format(reaction.meta[self._id_tag]))
@@ -254,7 +246,6 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot check for isotopes..'.format(reaction.meta[self._id_tag]))
             else:
                 return
-        print(8, str(reaction))
         try:
             reaction, return_code = self._split_ions(reaction)
             if return_code == 1:
@@ -270,7 +261,6 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot group ions..'.format(reaction.meta[self._id_tag]))
             else:
                 return
-        print(9, str(reaction))
         try:
             reaction.thiele()
         except:
@@ -279,7 +269,6 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot aromatize..'.format(reaction.meta[self._id_tag]))
             else:
                 return
-        print(10, str(reaction))
         try:
             reaction.fix_mapping()
         except:
@@ -288,7 +277,6 @@ class Standardizer:
                 raise Exception('Reaction {0}: Cannot fix mapping..'.format(reaction.meta[self._id_tag]))
             else:
                 return
-        print(11, str(reaction))
         try:
             if self._remove_unchanged_parts_flag:
                 reaction = self._remove_unchanged_parts(reaction)
@@ -306,7 +294,6 @@ class Standardizer:
                     reaction.meta[self._id_tag]))
             else:
                 return
-        print(12, str(reaction))
         self.logger.debug('Reaction {0} is done..'.format(reaction.meta[self._id_tag]))
         return reaction
 
@@ -488,16 +475,9 @@ class Standardizer:
 
         for reactant in reactants:
             if reactant in new_products:
-                # if self._ignore_mapping:
                 new_reagents.append(reactant)
                 new_reactants.remove(reactant)
                 new_products.remove(reactant)
-                # elif self._confirm_equivalence_by_mapping(reactant, new_products):
-                #     new_reagents.append(reactant)
-                #     new_reactants = [m for m in new_reactants if
-                #                      not self._confirm_equivalence_by_mapping(reactant, tuple([m]))]
-                #     new_products = [m for m in new_products if
-                #                     not self._confirm_equivalence_by_mapping(reactant, tuple([m]))]
         if not self._keep_reagents:
             new_reagents = []
         return ReactionContainer(reactants=tuple(new_reactants), reagents=tuple(new_reagents),
@@ -509,22 +489,6 @@ class Standardizer:
                 for _, atom in molecule.atoms():
                     if atom.isotope:
                         return True
-        return False
-
-    def _confirm_equivalence_by_mapping(self, molecule: MoleculeContainer,
-                                        molecules_list: Tuple[ReactionContainer, ...]) -> bool:
-        """
-        Checks if the molecule really corresponds to one of the molecules in the molecules_list
-        taking into account their mapping if such exists.
-        :param molecule: molecule for search, molecules_list: where to search
-        :return: bool
-        """
-        analogs = [retreived_molecule for retreived_molecule in molecules_list if retreived_molecule == molecule]
-        reference_mapping = molecule.atoms_numbers
-        for analog in analogs:
-            analog_mapping = analog.atoms_numbers
-            if len(set(reference_mapping) & set(analog_mapping)) == len(reference_mapping):
-                return True
         return False
 
     def _tautomerize(self, reaction: ReactionContainer) -> ReactionContainer:
