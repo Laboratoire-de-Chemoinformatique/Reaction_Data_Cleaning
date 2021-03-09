@@ -286,6 +286,11 @@ class Standardizer:
                 if not reaction.products:
                     self.logger.info('Reaction {0}: Products are empty..'.format(reaction.meta[self._id_tag]))
                     return
+                if not reaction.reactants and not reaction.products:
+                    self.logger.exception(
+                        'Reaction {0}: Cannot remove unchanged parts or the reaction is empty..'.format(
+                            reaction.meta[self._id_tag]))
+                    return
         except:
             self.logger.exception('Reaction {0}: Cannot remove unchanged parts or the reaction is empty..'.format(
                 reaction.meta[self._id_tag]))
