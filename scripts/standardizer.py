@@ -280,10 +280,10 @@ class Standardizer:
         try:
             if self._remove_unchanged_parts_flag:
                 reaction = self._remove_unchanged_parts(reaction)
-                if not reaction.reactants:
+                if not reaction.reactants and reaction.products:
                     self.logger.info('Reaction {0}: Reactants are empty..'.format(reaction.meta[self._id_tag]))
                     return
-                if not reaction.products:
+                if not reaction.products and reaction.reactants:
                     self.logger.info('Reaction {0}: Products are empty..'.format(reaction.meta[self._id_tag]))
                     return
                 if not reaction.reactants and not reaction.products:
