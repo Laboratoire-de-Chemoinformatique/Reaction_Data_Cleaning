@@ -8,6 +8,9 @@ This repository contains chemical reactions data curation best practices.
 * Our golden dataset zip archive curated and mapped manually;
 * USPTO dataset curated by the standardization protocol and mapped by RXNMapper.
 
+### Recommended way of running standardizer.py:
+python3.7 standardizer.py -i ../data/golden_dataset.rdf -o ../data/golden_dataset_out.rdf -id Reaction_ID --logFile ../data/golden_dataset.log --skip_tautomerize --keep_unbalanced_ions
+
 ### Corresponding Authors:
     Alexandre Varnek (varnek@unistra.fr)
     Timur Madzhidov (tmadzhidov@gmail.com)
