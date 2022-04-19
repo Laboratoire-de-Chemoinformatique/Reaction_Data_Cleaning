@@ -34,7 +34,7 @@ class Standardizer:
     def __init__(self, skip_errors=False, log_file=None, keep_unbalanced_ions=False, id_tag='Reaction_ID',
                  action_on_isotopes=0, keep_reagents=False, logger=None, ignore_mapping=False, jvm_path=None,
                  rdkit_dearomatization=False, remove_unchanged_parts=True, skip_tautomerize=False,
-                 jchem_path=None, add_reagents_to_reactants=False) -> None:
+                 jchem_path=None, add_reagents_to_reactants=False, keep_all_metadata=False) -> None:
         if logger is None:
             self.logger = self._config_log(log_file, logger_name='logger')
         else:
@@ -49,6 +49,7 @@ class Standardizer:
         self._skip_tautomerize = skip_tautomerize
         self._dearomatize_by_rdkit = rdkit_dearomatization
         self._reagents_to_reactants = add_reagents_to_reactants
+        self._keep_all_metadata = keep_all_metadata
         if not skip_tautomerize:
             if jvm_path:
                 os.environ['JDK_HOME'] = jvm_path
@@ -81,6 +82,27 @@ class Standardizer:
         print("{0} reactions passed..".format(len(data)))
         return data
 
+    def _keep_metadata(self, reaction: ReactionContainer,
+                       standardized_reaction: ReactionContainer) -> None:
+        """
+        Add id_tag and id to field names in metadata of reaction to keep them in the case of duplicates
+        and add all metadata of reaction to standardized_reaction.
+
+        Example:
+        {'Reaction_ID': '1', 'Property': '1'} -> {'Reaction_ID': '1', 'Property_Reaction_ID_1': '1'}
+
+        :param reaction: ReactionContainer
+        :param standardized_reaction: ReactionContainer
+        :return: None
+        """
+        for k, v in list(reaction.meta.items()):
+            if k not in {self._id_tag, 'Extraction_IDs'}:
+                standardized_reaction.meta["{0}_{1}_{2}".format(k, self._id_tag, reaction.meta[self._id_tag])] = v
+                if standardized_reaction.meta.get(k):
+                    del standardized_reaction.meta[k]
+            elif k == 'Extraction_IDs':
+                standardized_reaction.meta[k] = v
+
     def _read_RDF(self, input_file) -> OrderedSet:
         """
         Reads an RDF file. Returns an ordered set of ReactionContainer objects passed the standardization protocol.
@@ -112,6 +134,8 @@ class Standardizer:
                 standardized_reaction = self.standardize(reaction)
                 if standardized_reaction:
                     if standardized_reaction not in data:
+                        if self._keep_all_metadata:
+                            self._keep_metadata(reaction, standardized_reaction)
                         data.add(standardized_reaction)
                     else:
                         i = data.index(standardized_reaction)
@@ -119,6 +143,8 @@ class Standardizer:
                             data[i].meta['Extraction_IDs'] = ''
                         data[i].meta['Extraction_IDs'] = ','.join(data[i].meta['Extraction_IDs'].split(',') +
                                                                   [reaction.meta[self._id_tag]])
+                        if self._keep_all_metadata:
+                            self._keep_metadata(reaction, data[i])
                         self.logger.info('Reaction {0} is a duplicate of the reaction {1}..'
                                          .format(reaction.meta[self._id_tag], data[i].meta[self._id_tag]))
         return data
@@ -151,6 +177,7 @@ class Standardizer:
                 standardized_reaction = self.standardize(reaction)
                 if standardized_reaction:
                     if standardized_reaction not in data:
+                        self._keep_metadata(reaction, standardized_reaction)
                         data.add(standardized_reaction)
                     else:
                         i = data.index(standardized_reaction)
@@ -158,6 +185,8 @@ class Standardizer:
                             data[i].meta['Extraction_IDs'] = ''
                         data[i].meta['Extraction_IDs'] = ','.join(data[i].meta['Extraction_IDs'].split(',') +
                                                                   [reaction.meta[self._id_tag]])
+                        if self._keep_all_metadata:
+                            self._keep_metadata(reaction, data[i])
                         self.logger.info('Reaction {0} is a duplicate of the reaction {1}..'
                                          .format(reaction.meta[self._id_tag], data[i].meta[self._id_tag]))
         return data
@@ -586,6 +615,8 @@ if __name__ == '__main__':
     parser.add_argument("--jvm_path", type=str,
                         help="JVM path (e.g. C:\\Program Files\\Java\\jdk-13.0.2).")
     parser.add_argument("--jchem_path", type=str, help="JChem path (e.g. C:\\Users\\user\\JChemSuite\\lib\\jchem.jar).")
+    parser.add_argument("--keep_all_metadata", action="store_true", help="Will keep all metadata for reactions-duplicates "
+                                                                         "and add their id to field names")
     args = parser.parse_args()
 
     standardizer = Standardizer(skip_errors=args.skipErrors, log_file=args.logFile,
@@ -594,6 +625,6 @@ if __name__ == '__main__':
                                 ignore_mapping=args.ignore_mapping, skip_tautomerize=args.skip_tautomerize,
                                 remove_unchanged_parts=(not args.keep_unchanged_parts), jvm_path=args.jvm_path,
                                 jchem_path=args.jchem_path, rdkit_dearomatization=args.rdkit_dearomatization,
-                                add_reagents_to_reactants=args.add_reagents)
+                                add_reagents_to_reactants=args.add_reagents, keep_all_metadata=args.keep_all_metadata)
     data = standardizer.standardize_file(input_file=args.input)
     standardizer.write(output_file=args.output, data=data)
